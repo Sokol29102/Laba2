@@ -1,4 +1,7 @@
-﻿namespace WebApplication1.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace WebApplication1.Models
 {
 	public class Book
 	{

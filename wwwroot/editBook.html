@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Book</title>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+    <h1>Edit Book</h1>
+    <button onclick="location.href='addEditBooks.html'">Back</button>
+    <form onsubmit="updateBook(); return false;">
+        <input type="hidden" id="book-id">
+        <input type="text" id="description" placeholder="Description">
+        <input type="number" id="score" placeholder="Score">
+        <input type="number" id="publishDate" placeholder="Publish Date">
+        <button type="submit">Save</button>
+    </form>
+    <script src="js/editBook.js"></script>
+</body>
+</html>

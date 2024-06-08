@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add/Edit Users</title>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+    <h1>Add/Edit Users</h1>
+    <button onclick="location.href='index.html'">Back</button>
+    <h3>Edit User:</h3>
+    <input type="text" id="edit-user-id" placeholder="Enter User ID">
+    <button onclick="editUser()">Edit User</button>
+    <h3>Add User</h3>
+    <button onclick="location.href='addUser.html'">Add User</button>
+    <h3>List of Users:</h3>
+    <button onclick="getUsers()">Update List</button>
+    <table>
+        <thead>
+            <tr>
+                <th>UserID</th>
+                <th>Login</th>
+                <th>Email</th>
+                <th>CreatedAt</th>
+                <th>UpdatedAt</th>
+            </tr>
+        </thead>
+        <tbody id="users"></tbody>
+    </table>
+    <script src="js/users.js"></script>
+</body>
+</html>

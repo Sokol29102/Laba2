@@ -1,38 +1,33 @@
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
+using Microsoft.Extensions.Logging;
 using WebApplication1.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Set the culture explicitly (if needed)
-CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
-CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
-
-// Add services to the container.
 builder.Services.AddControllers();
-
-// Configure the database connection
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BookStoreContext>(options =>
-	options.UseSqlServer(connectionString));
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+		   .EnableSensitiveDataLogging()
+		   .EnableDetailedErrors()); 
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+	app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
+app.UseRouting();
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+	endpoints.MapControllers();
+	endpoints.MapFallbackToFile("index.html");
+});
 
 app.Run();

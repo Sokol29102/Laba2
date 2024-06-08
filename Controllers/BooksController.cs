@@ -10,52 +10,52 @@ namespace WebApplication1.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
-	public class UsersController : ControllerBase
+	public class BooksController : ControllerBase
 	{
 		private readonly BookStoreContext _context;
 
-		public UsersController(BookStoreContext context)
+		public BooksController(BookStoreContext context)
 		{
 			_context = context;
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+		public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
 		{
-			return await _context.Users.ToListAsync();
+			return await _context.Books.ToListAsync();
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<User>> GetUser(int id)
+		public async Task<ActionResult<Book>> GetBook(int id)
 		{
-			var user = await _context.Users.FindAsync(id);
+			var book = await _context.Books.FindAsync(id);
 
-			if (user == null)
+			if (book == null)
 			{
 				return NotFound();
 			}
 
-			return user;
+			return book;
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<User>> PostUser(User user)
+		public async Task<ActionResult<Book>> PostBook(Book book)
 		{
-			_context.Users.Add(user);
+			_context.Books.Add(book);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetUser), new { id = user.UserID }, user);
+			return CreatedAtAction(nameof(GetBook), new { id = book.BookID }, book);
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> PutUser(int id, User user)
+		public async Task<IActionResult> PutBook(int id, Book book)
 		{
-			if (id != user.UserID)
+			if (id != book.BookID)
 			{
 				return BadRequest();
 			}
 
-			_context.Entry(user).State = EntityState.Modified;
+			_context.Entry(book).State = EntityState.Modified;
 
 			try
 			{
@@ -63,7 +63,7 @@ namespace WebApplication1.Controllers
 			}
 			catch (DbUpdateConcurrencyException)
 			{
-				if (!UserExists(id))
+				if (!BookExists(id))
 				{
 					return NotFound();
 				}
@@ -77,23 +77,23 @@ namespace WebApplication1.Controllers
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteUser(int id)
+		public async Task<IActionResult> DeleteBook(int id)
 		{
-			var user = await _context.Users.FindAsync(id);
-			if (user == null)
+			var book = await _context.Books.FindAsync(id);
+			if (book == null)
 			{
 				return NotFound();
 			}
 
-			_context.Users.Remove(user);
+			_context.Books.Remove(book);
 			await _context.SaveChangesAsync();
 
 			return NoContent();
 		}
 
-		private bool UserExists(int id)
+		private bool BookExists(int id)
 		{
-			return _context.Users.Any(e => e.UserID == id);
+			return _context.Books.Any(e => e.BookID == id);
 		}
 	}
 }

@@ -1,0 +1,41 @@
+﻿body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+h1, h3 {
+    color: #333;
+}
+
+div {
+    margin: 10px 0;
+}
+
+button {
+    margin-right: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+input[type="text"] {
+    padding: 8px;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}

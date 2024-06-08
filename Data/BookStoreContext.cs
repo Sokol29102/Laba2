@@ -10,10 +10,10 @@ namespace WebApplication1.Data
 		{
 		}
 
-		public DbSet<User> Users { get; set; }
 		public DbSet<Author> Authors { get; set; }
 		public DbSet<Book> Books { get; set; }
 		public DbSet<AuthorBook> AuthorBooks { get; set; }
+		public DbSet<User> Users { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

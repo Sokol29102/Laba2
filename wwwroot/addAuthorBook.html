@@ -1,0 +1,20 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add AuthorBook</title>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+    <h1>Add AuthorBook</h1>
+    <button onclick="location.href='addEditAuthorBooks.html'">Back</button>
+    <form id="add-authorbook-form">
+        <label for="author-id">Author ID:</label>
+        <input type="number" id="author-id" name="author-id" required>
+        <label for="book-id">Book ID:</label>
+        <input type="number" id="book-id" name="book-id" required>
+        <button type="button" onclick="addAuthorBook()">Save</button>
+    </form>
+    <script src="js/addAuthorBook.js"></script>
+</body>
+</html>

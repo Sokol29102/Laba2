@@ -1,0 +1,1 @@
+{  "ConnectionStrings": {"DefaultConnection": "Server=DESKTOP-E737C26\\SQLAB2;Database=model;User ID=Lab2;Password=1;"},"Logging": {"LogLevel": {"Default": "Information","Microsfot": "Warning","Microsoft.Hosting.Lifetime": "Information"}},"AllowedHosts": "*"}
