@@ -1,0 +1,34 @@
+SQL server tables that are used:
+CREATE TABLE Users (
+    UserID INT PRIMARY KEY IDENTITY(1,1),
+    Login NVARCHAR(50) NOT NULL,
+    Password NVARCHAR(50) NOT NULL,
+    Email NVARCHAR(100) NOT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Authors (
+    AuthorID INT PRIMARY KEY IDENTITY(1,1),
+    Born INT,
+    Death INT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Books (
+    BookID INT PRIMARY KEY IDENTITY(1,1),
+    Description NVARCHAR(MAX) NOT NULL,
+    Score INT CHECK (Score BETWEEN 1 AND 5),
+    PublishDate INT,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE()
+);
+CREATE TABLE AuthorBooks (
+    AuthorID INT,
+    BookID INT,
+    PRIMARY KEY (AuthorID, BookID),
+    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID),
+    FOREIGN KEY (BookID) REFERENCES Books(BookID)
+);
+
