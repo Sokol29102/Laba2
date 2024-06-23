@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add/Edit Publishers</title>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+    <h1>Add/Edit Publishers</h1>
+    <button onclick="location.href='index.html'">Back to Main Page</button>
+    <div>
+        <label for="edit-publisher-id">Edit Publisher: </label>
+        <input type="number" id="edit-publisher-id" placeholder="Enter Publisher ID">
+        <button onclick="editPublisher()">Edit</button>
+    </div>
+    <div>
+        <button onclick="location.href='addPublisher.html'">Add Publisher</button>
+    </div>
+    <div>
+        <label for="remove-publisher-id">Remove Publisher: </label>
+        <input type="number" id="remove-publisher-id" placeholder="Enter Publisher ID">
+        <button onclick="removePublisher()">Remove</button>
+    </div>
+    <div>
+        <button onclick="getPublishers()">Update List</button>
+    </div>
+    <h3>List of Publishers:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>User ID</th>
+            </tr>
+        </thead>
+        <tbody id="publishers"></tbody>
+    </table>
+    <script src="js/publishers.js"></script>
+</body>
+</html>

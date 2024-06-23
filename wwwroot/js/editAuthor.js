@@ -18,6 +18,11 @@ function updateAuthor() {
     const born = document.getElementById('born').value;
     const death = document.getElementById('death').value || null;
 
+    if (!authorId || !born) {
+        console.error('Author ID and Born year are required.');
+        return;
+    }
+
     const author = {
         authorID: parseInt(authorId),
         born: parseInt(born),
@@ -36,7 +41,14 @@ function updateAuthor() {
             if (!response.ok) {
                 throw new Error('Failed to update author');
             }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Author updated successfully:', data);
             window.location.href = 'addEditAuthors.html';
         })
-        .catch(error => console.error('Unable to update author.', error));
+        .catch(error => {
+            console.error('Unable to update author.', error);
+            alert('Failed to update author: ' + error.message);
+        });
 }

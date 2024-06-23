@@ -7,17 +7,22 @@
 </head>
 <body>
     <h1>Add/Edit AuthorBooks</h1>
+    <button onclick="location.href='index.html'">Back to Main Page</button>
     <button onclick="location.href='index.html'">Back</button>
     <h3>Edit AuthorBook:</h3>
     <input type="text" id="edit-authorbook-id" placeholder="Enter AuthorBook ID">
     <button onclick="editAuthorBook()">Edit AuthorBook</button>
     <h3>Add AuthorBook</h3>
     <button onclick="location.href='addAuthorBook.html'">Add AuthorBook</button>
+    <h3>Remove AuthorBook:</h3>
+    <input type="text" id="remove-authorbook-id" placeholder="Enter AuthorBook RID">
+    <button onclick="removeAuthorBook()">Remove AuthorBook</button>
     <h3>List of AuthorBooks:</h3>
     <button onclick="getAuthorBooks()">Update List</button>
     <table>
         <thead>
             <tr>
+                <th>RID</th>
                 <th>AuthorID</th>
                 <th>BookID</th>
             </tr>

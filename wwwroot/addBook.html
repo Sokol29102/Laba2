@@ -9,10 +9,10 @@
 <body>
     <h1>Add Book</h1>
     <button onclick="location.href='addEditBooks.html'">Back</button>
-    <form onsubmit="addBook(); return false;">
-        <input type="text" id="description" placeholder="Description">
-        <input type="number" id="score" placeholder="Score">
-        <input type="number" id="publishDate" placeholder="Publish Date">
+    <form onsubmit="saveBook(); return false;">
+        <input type="text" id="description" placeholder="Description" required>
+        <input type="number" id="score" placeholder="Score" required>
+        <input type="number" id="publishDate" placeholder="Publish Date" required>
         <button type="submit">Save</button>
     </form>
     <script src="js/addBook.js"></script>

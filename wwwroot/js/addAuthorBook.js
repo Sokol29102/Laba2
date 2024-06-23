@@ -1,4 +1,5 @@
-﻿function addAuthorBook() {
+﻿const authorBooksUri = 'api/AuthorBooks';
+function addAuthorBook() {
     const authorID = document.getElementById('author-id').value;
     const bookID = document.getElementById('book-id').value;
 
@@ -17,7 +18,6 @@
     })
         .then(response => response.json())
         .then(() => {
-            window.location.href = 'addEditAuthorBooks.html';
         })
         .catch(error => console.error('Unable to add author book.', error));
 }

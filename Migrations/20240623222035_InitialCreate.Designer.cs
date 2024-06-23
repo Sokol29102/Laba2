@@ -12,7 +12,7 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(BookStoreContext))]
-    [Migration("20240607173410_InitialCreate")]
+    [Migration("20240623222035_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -42,23 +42,36 @@ namespace WebApplication1.Migrations
                     b.Property<int?>("Death")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PublisherID")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("AuthorID");
+
+                    b.HasIndex("PublisherID");
 
                     b.ToTable("Authors");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.AuthorBook", b =>
                 {
+                    b.Property<int>("RID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RID"));
+
                     b.Property<int>("AuthorID")
                         .HasColumnType("int");
 
                     b.Property<int>("BookID")
                         .HasColumnType("int");
 
-                    b.HasKey("AuthorID", "BookID");
+                    b.HasKey("RID");
+
+                    b.HasIndex("AuthorID");
 
                     b.HasIndex("BookID");
 
@@ -94,6 +107,29 @@ namespace WebApplication1.Migrations
                     b.ToTable("Books");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Publisher", b =>
+                {
+                    b.Property<int>("PublisherID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PublisherID"));
+
+                    b.Property<string>("PublisherName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("PublisherID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Publishers");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.User", b =>
                 {
                     b.Property<int>("UserID")
@@ -125,6 +161,16 @@ namespace WebApplication1.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Author", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Publisher", "Publisher")
+                        .WithMany()
+                        .HasForeignKey("PublisherID")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Publisher");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.AuthorBook", b =>
                 {
                     b.HasOne("WebApplication1.Models.Author", "Author")
@@ -142,6 +188,17 @@ namespace WebApplication1.Migrations
                     b.Navigation("Author");
 
                     b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Publisher", b =>
+                {
+                    b.HasOne("WebApplication1.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Author", b =>

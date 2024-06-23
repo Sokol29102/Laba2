@@ -33,4 +33,8 @@
     <TypeScriptCompile Include="wwwroot\js\editAuthor.js" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

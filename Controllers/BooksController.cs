@@ -8,92 +8,147 @@ using System.Threading.Tasks;
 
 namespace WebApplication1.Controllers
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class BooksController : ControllerBase
-	{
-		private readonly BookStoreContext _context;
+    [Route("api/[controller]")]
+    [ApiController]
+    public class BooksController : ControllerBase
+    {
+        private readonly BookStoreContext _context;
 
-		public BooksController(BookStoreContext context)
-		{
-			_context = context;
-		}
+        public BooksController(BookStoreContext context)
+        {
+            _context = context;
+        }
 
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-		{
-			return await _context.Books.ToListAsync();
-		}
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        {
+            return await _context.Books.ToListAsync();
+        }
 
-		[HttpGet("{id}")]
-		public async Task<ActionResult<Book>> GetBook(int id)
-		{
-			var book = await _context.Books.FindAsync(id);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Book>> GetBook(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
 
-			if (book == null)
-			{
-				return NotFound();
-			}
+            if (book == null)
+            {
+                return NotFound();
+            }
 
-			return book;
-		}
+            return book;
+        }
 
-		[HttpPost]
-		public async Task<ActionResult<Book>> PostBook(Book book)
-		{
-			_context.Books.Add(book);
-			await _context.SaveChangesAsync();
+        [HttpPost]
+        public async Task<ActionResult<Book>> PostBook(Book book)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync("DISABLE TRIGGER ALL ON Books");
 
-			return CreatedAtAction(nameof(GetBook), new { id = book.BookID }, book);
-		}
+                book.CreatedAt = DateTime.UtcNow;
+                book.UpdatedAt = DateTime.UtcNow;
 
-		[HttpPut("{id}")]
-		public async Task<IActionResult> PutBook(int id, Book book)
-		{
-			if (id != book.BookID)
-			{
-				return BadRequest();
-			}
+                _context.Books.Add(book);
+                await _context.SaveChangesAsync();
 
-			_context.Entry(book).State = EntityState.Modified;
+                await _context.Database.ExecuteSqlRawAsync("ENABLE TRIGGER ALL ON Books");
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
 
-			try
-			{
-				await _context.SaveChangesAsync();
-			}
-			catch (DbUpdateConcurrencyException)
-			{
-				if (!BookExists(id))
-				{
-					return NotFound();
-				}
-				else
-				{
-					throw;
-				}
-			}
+            return CreatedAtAction(nameof(GetBook), new { id = book.BookID }, book);
+        }
 
-			return NoContent();
-		}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutBook(int id, Book book)
+        {
+            if (id != book.BookID)
+            {
+                return BadRequest();
+            }
 
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteBook(int id)
-		{
-			var book = await _context.Books.FindAsync(id);
-			if (book == null)
-			{
-				return NotFound();
-			}
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync("DISABLE TRIGGER ALL ON Books");
 
-			_context.Books.Remove(book);
-			await _context.SaveChangesAsync();
+                var existingBook = await _context.Books.FindAsync(id);
+                if (existingBook == null)
+                {
+                    await _context.Database.ExecuteSqlRawAsync("ENABLE TRIGGER ALL ON Books");
+                    return NotFound();
+                }
 
-			return NoContent();
-		}
+                existingBook.Description = book.Description;
+                existingBook.PublishDate = book.PublishDate;
+                existingBook.Score = book.Score;
+                existingBook.UpdatedAt = DateTime.UtcNow;
 
-		private bool BookExists(int id)
-		{
-			return _context.Books.Any(e => e.BookID == id);
-		}
-	}
+                _context.Entry(existingBook).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                await _context.Database.ExecuteSqlRawAsync("ENABLE TRIGGER ALL ON Books");
+                await transaction.CommitAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await transaction.RollbackAsync();
+                if (!BookExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBook(int id)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync("DISABLE TRIGGER ALL ON Books");
+
+                var book = await _context.Books.FindAsync(id);
+                if (book == null)
+                {
+                    await _context.Database.ExecuteSqlRawAsync("ENABLE TRIGGER ALL ON Books");
+                    return NotFound();
+                }
+
+                _context.Books.Remove(book);
+                await _context.SaveChangesAsync();
+
+                await _context.Database.ExecuteSqlRawAsync("ENABLE TRIGGER ALL ON Books");
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+
+            return NoContent();
+        }
+
+        private bool BookExists(int id)
+        {
+            return _context.Books.Any(e => e.BookID == id);
+        }
+    }
 }

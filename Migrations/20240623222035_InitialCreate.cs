@@ -12,22 +12,6 @@ namespace WebApplication1.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Authors",
-                columns: table => new
-                {
-                    AuthorID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Born = table.Column<int>(type: "int", nullable: false),
-                    Death = table.Column<int>(type: "int", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Authors", x => x.AuthorID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Books",
                 columns: table => new
                 {
@@ -62,15 +46,60 @@ namespace WebApplication1.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Publishers",
+                columns: table => new
+                {
+                    PublisherID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PublisherName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    UserID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Publishers", x => x.PublisherID);
+                    table.ForeignKey(
+                        name: "FK_Publishers_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Authors",
+                columns: table => new
+                {
+                    AuthorID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Born = table.Column<int>(type: "int", nullable: false),
+                    Death = table.Column<int>(type: "int", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PublisherID = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Authors", x => x.AuthorID);
+                    table.ForeignKey(
+                        name: "FK_Authors_Publishers_PublisherID",
+                        column: x => x.PublisherID,
+                        principalTable: "Publishers",
+                        principalColumn: "PublisherID",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AuthorBooks",
                 columns: table => new
                 {
+                    RID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     AuthorID = table.Column<int>(type: "int", nullable: false),
                     BookID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AuthorBooks", x => new { x.AuthorID, x.BookID });
+                    table.PrimaryKey("PK_AuthorBooks", x => x.RID);
                     table.ForeignKey(
                         name: "FK_AuthorBooks_Authors_AuthorID",
                         column: x => x.AuthorID,
@@ -86,9 +115,24 @@ namespace WebApplication1.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuthorBooks_AuthorID",
+                table: "AuthorBooks",
+                column: "AuthorID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AuthorBooks_BookID",
                 table: "AuthorBooks",
                 column: "BookID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Authors_PublisherID",
+                table: "Authors",
+                column: "PublisherID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Publishers_UserID",
+                table: "Publishers",
+                column: "UserID");
         }
 
         /// <inheritdoc />
@@ -98,13 +142,16 @@ namespace WebApplication1.Migrations
                 name: "AuthorBooks");
 
             migrationBuilder.DropTable(
-                name: "Users");
-
-            migrationBuilder.DropTable(
                 name: "Authors");
 
             migrationBuilder.DropTable(
                 name: "Books");
+
+            migrationBuilder.DropTable(
+                name: "Publishers");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }
