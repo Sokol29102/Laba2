@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Author</title>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+    <h1>Find Author</h1>
+    <button onclick="location.href='index.html'">Back to Main Menu</button>
+    <div>
+        <label for="year">Find authors with books released after or before year:</label>
+        <input type="number" id="year" placeholder="Year">
+    </div>
+    <div>
+        <button onclick="findAuthors('after')">After</button>
+        <button onclick="findAuthors('before')">Before</button>
+    </div>
+    <div>
+        <h3>Results:</h3>
+        <ul id="results"></ul>
+    </div>
+    <script src="js/findAuthor.js"></script>
+</body>
+</html>

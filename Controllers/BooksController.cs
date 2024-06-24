@@ -8,92 +8,157 @@ using System.Threading.Tasks;
 
 namespace WebApplication1.Controllers
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class BooksController : ControllerBase
-	{
-		private readonly BookStoreContext _context;
+    [Route("api/[controller]")]
+    [ApiController]
+    public class BooksController : ControllerBase
+    {
+        private readonly BookStoreContext _context;
 
-		public BooksController(BookStoreContext context)
-		{
-			_context = context;
-		}
+        public BooksController(BookStoreContext context)
+        {
+            _context = context;
+        }
 
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-		{
-			return await _context.Books.ToListAsync();
-		}
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        {
+            return await _context.Books.ToListAsync();
+        }
 
-		[HttpGet("{id}")]
-		public async Task<ActionResult<Book>> GetBook(int id)
-		{
-			var book = await _context.Books.FindAsync(id);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Book>> GetBook(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
 
-			if (book == null)
-			{
-				return NotFound();
-			}
+            if (book == null)
+            {
+                return NotFound();
+            }
 
-			return book;
-		}
+            return book;
+        }
 
-		[HttpPost]
-		public async Task<ActionResult<Book>> PostBook(Book book)
-		{
-			_context.Books.Add(book);
-			await _context.SaveChangesAsync();
+        [HttpPost]
+        public async Task<ActionResult<Book>> PostBook(Book book)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-			return CreatedAtAction(nameof(GetBook), new { id = book.BookID }, book);
-		}
+            book.CreatedAt = DateTime.UtcNow;
+            book.UpdatedAt = DateTime.UtcNow;
 
-		[HttpPut("{id}")]
-		public async Task<IActionResult> PutBook(int id, Book book)
-		{
-			if (id != book.BookID)
-			{
-				return BadRequest();
-			}
+            _context.Books.Add(book);
+            await _context.SaveChangesAsync();
 
-			_context.Entry(book).State = EntityState.Modified;
+            return CreatedAtAction(nameof(GetBook), new { id = book.BookID }, book);
+        }
 
-			try
-			{
-				await _context.SaveChangesAsync();
-			}
-			catch (DbUpdateConcurrencyException)
-			{
-				if (!BookExists(id))
-				{
-					return NotFound();
-				}
-				else
-				{
-					throw;
-				}
-			}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutBook(int id, Book book)
+        {
+            if (id != book.BookID)
+            {
+                return BadRequest();
+            }
 
-			return NoContent();
-		}
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync("DISABLE TRIGGER ALL ON Books");
 
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteBook(int id)
-		{
-			var book = await _context.Books.FindAsync(id);
-			if (book == null)
-			{
-				return NotFound();
-			}
+                var existingBook = await _context.Books.FindAsync(id);
+                if (existingBook == null)
+                {
+                    await _context.Database.ExecuteSqlRawAsync("ENABLE TRIGGER ALL ON Books");
+                    return NotFound();
+                }
 
-			_context.Books.Remove(book);
-			await _context.SaveChangesAsync();
+                existingBook.Description = book.Description;
+                existingBook.PublishDate = book.PublishDate;
+                existingBook.Score = book.Score;
+                existingBook.UpdatedAt = DateTime.UtcNow;
 
-			return NoContent();
-		}
+                _context.Entry(existingBook).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
 
-		private bool BookExists(int id)
-		{
-			return _context.Books.Any(e => e.BookID == id);
-		}
-	}
+                await _context.Database.ExecuteSqlRawAsync("ENABLE TRIGGER ALL ON Books");
+                await transaction.CommitAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await transaction.RollbackAsync();
+                if (!BookExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBook(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            _context.Books.Remove(book);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpGet("findByAuthorYears")]
+        public async Task<ActionResult<IEnumerable<Book>>> FindBooksByAuthorYears(int authorId)
+        {
+            var author = await _context.Authors.FindAsync(authorId);
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            int deathYear = author.Death ?? DateTime.UtcNow.Year;
+
+            var books = await _context.Books
+                .Where(b => b.PublishDate >= author.Born && b.PublishDate <= deathYear)
+                .ToListAsync();
+
+            return books;
+        }
+
+        [HttpGet("findByAuthorBeforeBorn")]
+        public async Task<ActionResult<IEnumerable<Book>>> FindBooksByAuthorBeforeBorn(int authorId)
+        {
+            var author = await _context.Authors.FindAsync(authorId);
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            var books = await _context.Books
+                .Where(b => b.PublishDate < author.Born)
+                .ToListAsync();
+
+            return books;
+        }
+
+        private bool BookExists(int id)
+        {
+            return _context.Books.Any(e => e.BookID == id);
+        }
+    }
 }

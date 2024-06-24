@@ -7,6 +7,8 @@
 </head>
 <body>
     <h1>Edit Author</h1>
+    <button onclick="location.href='index.html'">Back to Main Page</button>
+    <button onclick="goBack()">Back</button>
     <form id="edit-author-form">
         <div>
             <label for="born">Born: </label>
@@ -17,10 +19,13 @@
             <input type="number" id="death" name="death">
         </div>
         <div>
+            <label for="publisherID">Publisher ID: </label>
+            <input type="number" id="publisherID" name="publisherID">
+        </div>
+        <div>
             <button type="button" onclick="updateAuthor()">Save</button>
         </div>
     </form>
-    <button onclick="goBack()">Back</button>
     <script>
         function goBack() {
             window.location.href = 'addEditAuthors.html';

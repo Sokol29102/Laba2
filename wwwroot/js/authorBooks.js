@@ -16,12 +16,16 @@ function displayAuthorBooks(data) {
         let tr = tBody.insertRow();
 
         let td1 = tr.insertCell(0);
-        let textNodeAuthorID = document.createTextNode(authorBook.authorID);
-        td1.appendChild(textNodeAuthorID);
+        let textNode = document.createTextNode(authorBook.rid);
+        td1.appendChild(textNode);
 
         let td2 = tr.insertCell(1);
-        let textNodeBookID = document.createTextNode(authorBook.bookID);
-        td2.appendChild(textNodeBookID);
+        textNode = document.createTextNode(authorBook.authorID);
+        td2.appendChild(textNode);
+
+        let td3 = tr.insertCell(2);
+        textNode = document.createTextNode(authorBook.bookID);
+        td3.appendChild(textNode);
     });
 
     authorBooks = data;
@@ -29,7 +33,7 @@ function displayAuthorBooks(data) {
 
 function editAuthorBook() {
     const authorBookId = document.getElementById('edit-authorbook-id').value;
-    const authorBook = authorBooks.find(authorBook => authorBook.id === parseInt(authorBookId, 10));
+    const authorBook = authorBooks.find(authorBook => authorBook.rid === parseInt(authorBookId, 10));
 
     if (authorBook) {
         window.location.href = `editAuthorBook.html?authorID=${authorBook.authorID}&bookID=${authorBook.bookID}`;
@@ -37,3 +41,22 @@ function editAuthorBook() {
         alert('AuthorBook not found');
     }
 }
+
+function removeAuthorBook() {
+    const authorBookId = document.getElementById('remove-authorbook-id').value.trim();
+    if (authorBookId === '') {
+        alert('Please enter an AuthorBook RID');
+        return;
+    }
+
+    fetch(`${authorBooksUri}/${authorBookId}`, {
+        method: 'DELETE'
+    })
+        .then(() => {
+            getAuthorBooks();
+            document.getElementById('remove-authorbook-id').value = '';
+        })
+        .catch(error => console.error('Unable to remove author book.', error));
+}
+
+document.addEventListener("DOMContentLoaded", getAuthorBooks);

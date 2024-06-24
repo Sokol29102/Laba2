@@ -7,15 +7,27 @@
 </head>
 <body>
     <h1>Edit AuthorBook</h1>
+    <button onclick="location.href='index.html'">Back to Main Page</button>
     <button onclick="location.href='addEditAuthorBooks.html'">Back</button>
     <form id="edit-authorbook-form">
-        <input type="hidden" id="authorbook-id" name="authorbook-id">
-        <label for="author-id">Author ID:</label>
-        <input type="number" id="author-id" name="author-id" required>
-        <label for="book-id">Book ID:</label>
-        <input type="number" id="book-id" name="book-id" required>
-        <button type="button" onclick="updateAuthorBook()">Save</button>
+        <input type="hidden" id="rid" name="rid">
+        <div>
+            <label for="author-id">Author ID:</label>
+            <input type="number" id="author-id" name="author-id" required>
+        </div>
+        <div>
+            <label for="book-id">Book ID:</label>
+            <input type="number" id="book-id" name="book-id" required>
+        </div>
+        <div>
+            <button type="button" onclick="updateAuthorBook()">Save</button>
+        </div>
     </form>
+    <script>
+        function goBack() {
+            window.location.href = 'addEditAuthorBooks.html';
+        }
+    </script>
     <script src="js/editAuthorBook.js"></script>
 </body>
 </html>

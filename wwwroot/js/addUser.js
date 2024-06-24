@@ -1,4 +1,6 @@
-﻿function addUser() {
+﻿const usersUri = 'api/Users';
+
+function addUser() {
     const login = document.getElementById('login').value;
     const password = document.getElementById('password').value;
     const email = document.getElementById('email').value;
@@ -17,7 +19,12 @@
         },
         body: JSON.stringify(user)
     })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to add user');
+            }
+            return response.json();
+        })
         .then(() => {
             window.location.href = 'addEditUsers.html';
         })

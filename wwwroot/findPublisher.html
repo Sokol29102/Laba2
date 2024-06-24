@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Publisher</title>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+    <h1>Find Publisher</h1>
+    <button onclick="location.href='index.html'">Back to Main Menu</button>
+    <div>
+        <label for="userId">Find publishers with UserID:</label>
+        <input type="number" id="userId" placeholder="UserID">
+    </div>
+    <div>
+        <button onclick="findPublishers()">Find</button>
+    </div>
+    <div>
+        <h3>Results:</h3>
+        <ul id="results"></ul>
+    </div>
+    <script src="js/findPublisher.js"></script>
+</body>
+</html>

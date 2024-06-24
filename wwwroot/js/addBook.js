@@ -53,3 +53,37 @@ function editBook() {
         alert('Book not found');
     }
 }
+
+function saveBook() {
+    const description = document.getElementById('description').value;
+    const score = document.getElementById('score').value;
+    const publishDate = document.getElementById('publishDate').value;
+
+    const book = {
+        description: description,
+        score: parseInt(score),
+        publishDate: parseInt(publishDate)
+    };
+
+    console.log('Saving book:', book);
+
+    fetch(booksUri, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(book)
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to add book');
+        }
+        return response.json();
+    }).then(data => {
+        console.log('Book added:', data);
+        window.location.href = 'addEditBooks.html';
+    }).catch(error => {
+        console.error('Unable to add book.', error);
+        alert('Failed to add book: ' + error.message);
+    });
+}

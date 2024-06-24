@@ -7,9 +7,9 @@
 </head>
 <body>
     <h1>Add/Edit AuthorBooks</h1>
-    <button onclick="location.href='index.html'">Back</button>
+    <button onclick="location.href='index.html'">Back to Main Page</button>
     <h3>Edit AuthorBook:</h3>
-    <input type="text" id="edit-authorbook-id" placeholder="Enter AuthorBook ID">
+    <input type="text" id="edit-authorbook-id" placeholder="Enter AuthorBook RID">
     <button onclick="editAuthorBook()">Edit AuthorBook</button>
     <h3>Add AuthorBook</h3>
     <button onclick="location.href='addAuthorBook.html'">Add AuthorBook</button>
@@ -18,12 +18,52 @@
     <table>
         <thead>
             <tr>
+                <th>RID</th>
                 <th>AuthorID</th>
                 <th>BookID</th>
             </tr>
         </thead>
         <tbody id="authorbooks"></tbody>
     </table>
-    <script src="js/authorbooks.js"></script>
+    <script>
+        function editAuthorBook() {
+            const rid = document.getElementById('edit-authorbook-id').value;
+            if (!rid) {
+                alert('Please enter a valid AuthorBook RID');
+                return;
+            }
+            window.location.href = `editAuthorBook.html?rid=${rid}`;
+        }
+
+        function getAuthorBooks() {
+            fetch('api/AuthorBooks')
+                .then(response => response.json())
+                .then(data => displayAuthorBooks(data))
+                .catch(error => console.error('Unable to get author books.', error));
+        }
+
+        function displayAuthorBooks(data) {
+            const tBody = document.getElementById('authorbooks');
+            tBody.innerHTML = '';
+
+            data.forEach(authorBook => {
+                let tr = tBody.insertRow();
+
+                let td1 = tr.insertCell(0);
+                let textNodeRID = document.createTextNode(authorBook.rid);
+                td1.appendChild(textNodeRID);
+
+                let td2 = tr.insertCell(1);
+                let textNodeAuthorID = document.createTextNode(authorBook.authorID);
+                td2.appendChild(textNodeAuthorID);
+
+                let td3 = tr.insertCell(2);
+                let textNodeBookID = document.createTextNode(authorBook.bookID);
+                td3.appendChild(textNodeBookID);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', getAuthorBooks);
+    </script>
 </body>
 </html>

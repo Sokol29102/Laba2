@@ -37,7 +37,23 @@ function displayUsers(data) {
     });
 
     users = data;
+} function removeUser() {
+    const userId = document.getElementById('remove-user-id').value.trim();
+    if (userId === '') {
+        alert('Please enter a User ID');
+        return;
+    }
+
+    fetch(`${usersUri}/${userId}`, {
+        method: 'DELETE'
+    })
+        .then(() => {
+            getUsers();
+            document.getElementById('remove-user-id').value = '';
+        })
+        .catch(error => console.error('Unable to remove user.', error));
 }
+
 
 function editUser() {
     const userId = document.getElementById('edit-user-id').value;
@@ -49,3 +65,6 @@ function editUser() {
         alert('User not found');
     }
 }
+
+
+document.addEventListener("DOMContentLoaded", getUsers);

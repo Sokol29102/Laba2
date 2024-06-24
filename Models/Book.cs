@@ -12,6 +12,8 @@ namespace WebApplication1.Models
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
 
-		public ICollection<AuthorBook> AuthorBooks { get; set; }
+		public ICollection<AuthorBook>? AuthorBooks { get; set; }
+
+		public Author? Author;
 	}
 }

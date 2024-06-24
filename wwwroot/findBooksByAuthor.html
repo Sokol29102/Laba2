@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Books by Author</title>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+    <h1>Find Books by Author</h1>
+    <button onclick="location.href='index.html'">Back to Main Menu</button>
+    <div>
+        <label for="authorId">Author ID:</label>
+        <input type="number" id="authorId" placeholder="Author ID">
+    </div>
+    <div>
+        <button onclick="findBooksBetweenYears()">Find Books Between Birth and Death</button>
+        <button onclick="findBooksBeforeBorn()">Find Books Before Born</button>
+    </div>
+    <div>
+        <h3>Results:</h3>
+        <ul id="results"></ul>
+    </div>
+    <script src="js/findBooksByAuthor.js"></script>
+</body>
+</html>

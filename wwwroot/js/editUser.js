@@ -1,4 +1,6 @@
-﻿document.addEventListener('DOMContentLoaded', (event) => {
+﻿const editUserUri = 'api/Users';
+
+document.addEventListener('DOMContentLoaded', (event) => {
     const urlParams = new URLSearchParams(window.location.search);
     const userID = urlParams.get('userID');
     const login = urlParams.get('login');
@@ -22,7 +24,7 @@ function updateUser() {
         email: email
     };
 
-    fetch(`${usersUri}/${userID}`, {
+    fetch(`${editUserUri}/${userID}`, {
         method: 'PUT',
         headers: {
             'Accept': 'application/json',
@@ -30,7 +32,10 @@ function updateUser() {
         },
         body: JSON.stringify(user)
     })
-        .then(() => {
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update user');
+            }
             window.location.href = 'addEditUsers.html';
         })
         .catch(error => console.error('Unable to update user.', error));

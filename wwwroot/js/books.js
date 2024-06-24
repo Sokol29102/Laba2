@@ -53,3 +53,22 @@ function editBook() {
         alert('Book not found');
     }
 }
+
+function removeBook() {
+    const bookId = document.getElementById('remove-book-id').value.trim();
+    if (bookId === '') {
+        alert('Please enter a Book ID');
+        return;
+    }
+
+    fetch(`${booksUri}/${bookId}`, {
+        method: 'DELETE'
+    })
+        .then(() => {
+            getBooks();
+            document.getElementById('remove-book-id').value = '';
+        })
+        .catch(error => console.error('Unable to remove book.', error));
+}
+
+document.addEventListener("DOMContentLoaded", getBooks);

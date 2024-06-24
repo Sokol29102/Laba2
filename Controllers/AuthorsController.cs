@@ -8,92 +8,139 @@ using System.Threading.Tasks;
 
 namespace WebApplication1.Controllers
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class AuthorsController : ControllerBase
-	{
-		private readonly BookStoreContext _context;
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthorsController : ControllerBase
+    {
+        private readonly BookStoreContext _context;
 
-		public AuthorsController(BookStoreContext context)
-		{
-			_context = context;
-		}
+        public AuthorsController(BookStoreContext context)
+        {
+            _context = context;
+        }
 
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
-		{
-			return await _context.Authors.ToListAsync();
-		}
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
+        {
+            return await _context.Authors.ToListAsync();
+        }
 
-		[HttpGet("{id}")]
-		public async Task<ActionResult<Author>> GetAuthor(int id)
-		{
-			var author = await _context.Authors.FindAsync(id);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Author>> GetAuthor(int id)
+        {
+            var author = await _context.Authors.FindAsync(id);
 
-			if (author == null)
-			{
-				return NotFound();
-			}
+            if (author == null)
+            {
+                return NotFound();
+            }
 
-			return author;
-		}
+            return author;
+        }
 
-		[HttpPost]
-		public async Task<ActionResult<Author>> PostAuthor(Author author)
-		{
-			_context.Authors.Add(author);
-			await _context.SaveChangesAsync();
+        [HttpPost]
+        public async Task<ActionResult<Author>> PostAuthor(Author author)
+        {
+            author.CreatedAt = DateTime.UtcNow;
+            author.UpdatedAt = DateTime.UtcNow;
 
-			return CreatedAtAction(nameof(GetAuthor), new { id = author.AuthorID }, author);
-		}
+            _context.Authors.Add(author);
+            await _context.SaveChangesAsync();
 
-		[HttpPut("{id}")]
-		public async Task<IActionResult> PutAuthor(int id, Author author)
-		{
-			if (id != author.AuthorID)
-			{
-				return BadRequest();
-			}
+            return CreatedAtAction(nameof(GetAuthor), new { id = author.AuthorID }, author);
+        }
 
-			_context.Entry(author).State = EntityState.Modified;
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAuthor(int id, Author author)
+        {
+            if (id != author.AuthorID)
+            {
+                return BadRequest();
+            }
 
-			try
-			{
-				await _context.SaveChangesAsync();
-			}
-			catch (DbUpdateConcurrencyException)
-			{
-				if (!AuthorExists(id))
-				{
-					return NotFound();
-				}
-				else
-				{
-					throw;
-				}
-			}
+            // Validate the author object
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-			return NoContent();
-		}
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Disable triggers
+                await _context.Database.ExecuteSqlRawAsync("DISABLE TRIGGER ALL ON Authors");
 
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteAuthor(int id)
-		{
-			var author = await _context.Authors.FindAsync(id);
-			if (author == null)
-			{
-				return NotFound();
-			}
+                var existingAuthor = await _context.Authors.FindAsync(id);
+                if (existingAuthor == null)
+                {
+                    await _context.Database.ExecuteSqlRawAsync("ENABLE TRIGGER ALL ON Authors");
+                    return NotFound();
+                }
 
-			_context.Authors.Remove(author);
-			await _context.SaveChangesAsync();
+                existingAuthor.Born = author.Born;
+                existingAuthor.Death = author.Death;
+                existingAuthor.PublisherID = author.PublisherID;
+                existingAuthor.UpdatedAt = DateTime.UtcNow;
 
-			return NoContent();
-		}
+                _context.Entry(existingAuthor).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
 
-		private bool AuthorExists(int id)
-		{
-			return _context.Authors.Any(e => e.AuthorID == id);
-		}
-	}
+                // Enable triggers
+                await _context.Database.ExecuteSqlRawAsync("ENABLE TRIGGER ALL ON Authors");
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+
+            return NoContent();  // No content response
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAuthor(int id)
+        {
+            var author = await _context.Authors.FindAsync(id);
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            _context.Authors.Remove(author);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+        [HttpGet("findByYear")]
+        public async Task<ActionResult<IEnumerable<AuthorDTO>>> FindAuthorsByYear(int year, string condition)
+        {
+            if (condition != "after" && condition != "before")
+            {
+                return BadRequest("Invalid condition. Use 'after' or 'before'.");
+            }
+
+            IQueryable<AuthorDTO> query = from author in _context.Authors
+                                          join authorBook in _context.AuthorBooks on author.AuthorID equals authorBook.AuthorID
+                                          join book in _context.Books on authorBook.BookID equals book.BookID
+                                          where (condition == "after" && book.PublishDate > year) || (condition == "before" && book.PublishDate < year)
+                                          select new AuthorDTO
+                                          {
+                                              AuthorID = author.AuthorID,
+                                              Born = author.Born,
+                                              Death = author.Death
+                                          };
+
+            var authors = await query.ToListAsync();
+
+            return authors;
+        }
+
+
+        private bool AuthorExists(int id)
+        {
+            return _context.Authors.Any(e => e.AuthorID == id);
+        }
+    }
 }

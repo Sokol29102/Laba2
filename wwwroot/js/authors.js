@@ -27,7 +27,7 @@ function editAuthor() {
             }
         })
         .then(data => {
-            window.location.href = `editAuthor.html?authorId=${authorId}&born=${data.born}&death=${data.death}`;
+            window.location.href = `editAuthor.html?authorId=${authorId}&born=${data.born}&death=${data.death}&publisherID=${data.publisherID}`;
         })
         .catch(error => {
             alert(error.message);
@@ -77,6 +77,10 @@ function displayAuthors(data) {
         let td5 = tr.insertCell(4);
         textNode = document.createTextNode(author.updatedAt);
         td5.appendChild(textNode);
+
+        let td6 = tr.insertCell(5);
+        textNode = document.createTextNode(author.publisherID);
+        td6.appendChild(textNode);
     });
 
     authors = data;
