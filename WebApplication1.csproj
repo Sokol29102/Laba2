@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\js\editAuthor.js" />
+    <Content Remove="wwwroot\js\findOlderThan90.cs" />
   </ItemGroup>
 
   <ItemGroup>

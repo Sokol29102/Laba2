@@ -50,6 +50,7 @@ namespace WebApplication1.Controllers
             return CreatedAtAction(nameof(GetAuthor), new { id = author.AuthorID }, author);
         }
 
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAuthor(int id, Author author)
         {
@@ -85,7 +86,6 @@ namespace WebApplication1.Controllers
                 _context.Entry(existingAuthor).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
-                // Enable triggers
                 await _context.Database.ExecuteSqlRawAsync("ENABLE TRIGGER ALL ON Authors");
 
                 await transaction.CommitAsync();
@@ -96,7 +96,7 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
 
-            return NoContent();  // No content response
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
@@ -136,7 +136,15 @@ namespace WebApplication1.Controllers
 
             return authors;
         }
+        /*[HttpGet("over90Years")]
+        public async Task<ActionResult<IEnumerable<Author>>> GetAuthorsOver90Years()
+        {
+            var authors = await _context.Authors
+                .Where(a => a.Death.HasValue && (a.Death.Value - a.Born) > 90)
+                .ToListAsync();
 
+            return authors;
+        }*/
 
         private bool AuthorExists(int id)
         {
